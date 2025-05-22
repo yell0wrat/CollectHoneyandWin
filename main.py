@@ -1,5 +1,7 @@
 from settings import *
 from player import Player
+from sprites import *
+from random import randint
 #initalizing the game with pygane.init
 #whenever starting a class as well, you must make a "__init__" funciton
 class Game:
@@ -13,8 +15,15 @@ class Game:
         self.running = True
         #groups
         self.all_sprites = pygame.sprite.Group()
+        self.collision_sprites = pygame.sprite.Group()
         #sprites
-        self.player = Player((400,300), self.all_sprites)
+        self.player = Player((400,300), self.all_sprites,self.collision_sprites)
+        for i in range(6):
+            #these wont matter in the future, just testing
+            x,y = randint(0,WINDOW_WIDTH), randint(0,WINDOW_HEIGHT)
+            w,h = randint(50,90), randint(60,80)
+            #adding it to 2 seperate sprites, player is in all sprites NOT in collision, but has access to it to detect collision
+            CollisionSprite((x,y), (w,h), (self.all_sprites,self.collision_sprites))
 
     def run(self):
         while self.running:
@@ -27,6 +36,7 @@ class Game:
             #update, updates sprites
             self.all_sprites.update(dt)
             #draw, to "draw" is to make the images visible to the user
+            self.display_surface.fill('black')
             self.all_sprites.draw(self.display_surface)
             pygame.display.update()
         pygame.quit()
