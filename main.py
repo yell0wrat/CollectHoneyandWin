@@ -1,7 +1,9 @@
 from settings import *
 from player import Player
 from sprites import *
-from random import randint
+from pytmx.util_pygame import load_pygame
+#from random import randint probably not needed anymore
+
 #initalizing the game with pygane.init
 #whenever starting a class as well, you must make a "__init__" funciton
 class Game:
@@ -16,14 +18,22 @@ class Game:
         #groups
         self.all_sprites = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
+
+        self.setup()
+
         #sprites
         self.player = Player((400,300), self.all_sprites,self.collision_sprites)
-        for i in range(6):
-            #these wont matter in the future, just testing
-            x,y = randint(0,WINDOW_WIDTH), randint(0,WINDOW_HEIGHT)
-            w,h = randint(50,90), randint(60,80)
-            #adding it to 2 seperate sprites, player is in all sprites NOT in collision, but has access to it to detect collision
-            CollisionSprite((x,y), (w,h), (self.all_sprites,self.collision_sprites))
+
+    def setup(self):
+        #loading in the map layer by layer, ground is first then trees
+        map = load_pygame(join('Data','testmap.tmx'))
+        #ground is tile so we use tile
+        for x, y, image in map.get_layer_by_name('Ground').tiles():
+            Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
+        #trees theirself are tile later, we use ".tiles"
+        for x, y, image in map.get_layer_by_name('Trees').tiles():  #works if the layer is properly set up
+            if image:  #skip empty tiles
+                CollisionSprite((x * TILE_SIZE, y * TILE_SIZE),image,(self.all_sprites, self.collision_sprites))
 
     def run(self):
         while self.running:
