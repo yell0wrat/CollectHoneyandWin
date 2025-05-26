@@ -4,53 +4,53 @@ from sprites import *
 from pytmx.util_pygame import load_pygame
 #from random import randint probably not needed anymore
 
-#initalizing the game with pygane.init
-#whenever starting a class as well, you must make a "__init__" funciton
+# initalizing the game with pygane.init
+# whenever starting a class as well, you must make a "__init__" funciton
 class Game:
     def __init__(self):
-        #setup for the games
+        # setup for the games
         pygame.init()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption('the lion does not concern itself with titles')
-        #we use this as the framerate for the game
+        # we use this as the framerate for the game
         self.clock = pygame.time.Clock()
         self.running = True
-        #groups
+        # groups
         self.all_sprites = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
 
         self.setup()
 
-        #sprites
+        # sprites
         self.player = Player((400,300), self.all_sprites,self.collision_sprites)
 
     def setup(self):
-        #loading in the map layer by layer, ground is first then trees
+        # loading in the map layer by layer, ground is first then trees
         map = load_pygame(join('Data','testmap.tmx'))
-        #ground is tile so we use tile
+        # ground is tile so we use tile
         for x, y, image in map.get_layer_by_name('Ground').tiles():
             Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
-        #trees theirself are tile later, we use ".tiles"
+        # trees theirself are tile later, we use ".tiles"
         for x, y, image in map.get_layer_by_name('Trees').tiles():  #works if the layer is properly set up
             if image:  #skip empty tiles
                 CollisionSprite((x * TILE_SIZE, y * TILE_SIZE),image,(self.all_sprites, self.collision_sprites))
 
     def run(self):
         while self.running:
-            #delta time, makes the game not dependent on the FPS of the system
+            # delta time, makes the game not dependent on the FPS of the system
             dt = self.clock.tick() / 1000
-            #event loop
+            # event loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-            #update, updates sprites
+            # update, updates sprites
             self.all_sprites.update(dt)
-            #draw, to "draw" is to make the images visible to the user
+            # draw, to "draw" is to make the images visible to the user
             self.display_surface.fill('black')
             self.all_sprites.draw(self.display_surface)
             pygame.display.update()
         pygame.quit()
-#we have to now call the game class in order for it to run
+# we have to now call the game class in order for it to run
 if __name__ == '__main__':
     game = Game()
     game.run()
@@ -63,7 +63,7 @@ class Character:
     #you define the variables that are in () that aren't self
     def __init__(self, health: int, damage: int, speed: int):
         self.health=health
-        #max health isn't in the vars but this is for future proofing
+        # max health isn't in the vars but this is for future proofing
         self.health_max=health
         self.damage=damage
         self.speed = speed
