@@ -10,7 +10,7 @@ class Player(pygame.sprite.Sprite):
         self.hitbox_rect = self.rect.inflate(-40,-42)
         # movement
         self.direction = pygame.Vector2(0,0)
-        self.speed = 500
+        self.speed = 400
         self.collision_sprites = collision_sprites
 
     def load_images(self):
