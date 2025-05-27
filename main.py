@@ -3,6 +3,7 @@ from settings import *
 from player import Player
 from sprites import *
 from pytmx.util_pygame import load_pygame
+from groups import AllSprites
 #from random import randint probably not needed anymore
 
 # initalizing the game with pygane.init
@@ -20,7 +21,7 @@ class Game:
         self.running = True
 
         # groups
-        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
 
         self.setup()
@@ -39,7 +40,7 @@ class Game:
             if image:  #skip empty tiles
                 CollisionSprite((x * TILE_SIZE, y * TILE_SIZE),image,(self.all_sprites, self.collision_sprites))
 
-    def run(self):
+    def run(self) -> None:
         while self.running:
             # delta time, makes the game not dependent on the FPS of the system
             dt = self.clock.tick() / 1000
@@ -51,7 +52,7 @@ class Game:
             self.all_sprites.update(dt)
             # draw, to "draw" is to make the images visible to the user
             self.display_surface.fill('black')
-            self.all_sprites.draw(self.display_surface)
+            self.all_sprites.draw(self.player.rect.center)
             self.player.draw_health_bar(self.display_surface)
             pygame.display.update()
         pygame.quit()
