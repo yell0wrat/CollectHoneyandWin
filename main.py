@@ -32,15 +32,17 @@ class Game:
     def setup(self):
         # loading in the map layer by layer, ground is first then trees
         map = load_pygame(join('Data','testmap.tmx'))
+
         # ground is tile so we use tile
         for x, y, image in map.get_layer_by_name('Ground').tiles():
             Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
+            
         # trees theirself are tile later, we use ".tiles"
         for x, y, image in map.get_layer_by_name('Trees').tiles():  #works if the layer is properly set up
             if image:  #skip empty tiles
                 CollisionSprite((x * TILE_SIZE, y * TILE_SIZE),image,(self.all_sprites, self.collision_sprites))
 
-    def run(self) -> None:
+    def run(self):
         while self.running:
             # delta time, makes the game not dependent on the FPS of the system
             dt = self.clock.tick() / 1000
