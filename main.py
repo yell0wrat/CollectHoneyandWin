@@ -12,9 +12,11 @@ class Game:
         pygame.init()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption('the lion does not concern itself with titles')
+
         # we use this as the framerate for the game
         self.clock = pygame.time.Clock()
         self.running = True
+
         # groups
         self.all_sprites = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
@@ -22,7 +24,7 @@ class Game:
         self.setup()
 
         # sprites
-        self.player = Player((400,300), self.all_sprites,self.collision_sprites)
+        self.player = Player((400,300), self.all_sprites, self.collision_sprites)
 
     def setup(self):
         # loading in the map layer by layer, ground is first then trees
@@ -48,6 +50,7 @@ class Game:
             # draw, to "draw" is to make the images visible to the user
             self.display_surface.fill('black')
             self.all_sprites.draw(self.display_surface)
+            self.player.draw_health_bar(self.display_surface)
             pygame.display.update()
         pygame.quit()
 # we have to now call the game class in order for it to run

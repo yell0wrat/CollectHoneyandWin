@@ -10,12 +10,41 @@ class Player(pygame.sprite.Sprite):
         self.hitbox_rect = self.rect.inflate(-40,-42)
         # movement
         self.direction = pygame.Vector2(0,0)
+        self.max_health = 100 # may change later i dont know
+        self.current_health = self.max_health
         self.speed = 400
         self.collision_sprites = collision_sprites
+    # no eniemes in game but this is future proofing
+    def take_damage(self, amount):
+        self.current_health -= amount
+        if self.current_health < 0:
+            self.current_health = 0
+
+    def is_alive(self):
+        return self.current_health > 0
+
+    def draw_health_bar(self, surface):
+        bar_width, bar_height = 200, 20
+        pos_x, pos_y = 10, 10  # 10 px from top-left corner
+
+        # current health percentage
+        health_ratio = self.current_health / self.max_health
+        fill_width = int(bar_width * health_ratio)
+
+        # background of health bar (lost hp)
+        pygame.draw.rect(surface, (40, 40, 40), (pos_x, pos_y, bar_width, bar_height))
+        # current hp
+        pygame.draw.rect(surface, (254, 172, 40), (pos_x, pos_y, fill_width, bar_height))
+        #border of health bar
+        pygame.draw.rect(surface, (255, 255, 255), (pos_x, pos_y, bar_width, bar_height), 2)
+
+        # text for the health
+        font = pygame.font.Font(None, 24)
+        health_text = font.render(f"Health: {int(self.current_health)}/{self.max_health}", True, (255, 255, 255))
+        surface.blit(health_text, (pos_x + 10, pos_y + 2))
 
     def load_images(self):
         self.frames ={'Left':[], 'Down':[], 'Right':[],'Up':[] }
-
         for state in self.frames.keys():
             for folder_path, sub_folders, file_names in walk(join('Robot',state)):
                 if file_names:
@@ -28,8 +57,8 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
         # using pygame-ce, NOT regular pygame, you wont get the weird bug of slow movement for left and up
-        self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
-        self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
+        self.direction.x = int(keys[pygame.K_d] - int(keys[pygame.K_a]))
+        self.direction.y = int(keys[pygame.K_s] - int(keys[pygame.K_w]))
         # diagonal speeds are faster, this line makes it normal and checks if there is direction move than 0
         self.direction = self.direction.normalize() if self.direction else self.direction
 
@@ -68,6 +97,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = self.frame_index + 5 * dt if self.direction else 0
         # looking for the walking direction state of the animation,
         # where we get the remainder of frame_index and self frames and its state to make the animation occur
+        # if u dont get the remainder the program will fucking crash bc u cant get .5 of a frame
         # this makes the animation look rather smooth for having only 4 frames of walking
         self.image = self.frames[self.state][int(self.frame_index) % len(self.frames[self.state])]
 
