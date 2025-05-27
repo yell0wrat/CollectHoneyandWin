@@ -1,3 +1,4 @@
+import pygame
 from settings import *
 from player import Player
 from sprites import *
@@ -10,7 +11,8 @@ class Game:
     def __init__(self):
         # setup for the games
         pygame.init()
-        self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        #made the game borderless, which speeds up loading into the game when compared to only doing fullscreen function
+        self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SCALED | pygame.FULLSCREEN)
         pygame.display.set_caption('the lion does not concern itself with titles')
 
         # we use this as the framerate for the game
