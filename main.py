@@ -31,6 +31,9 @@ class Game:
         self.font = pygame.font.SysFont('Corbel', 35)
         self.main_menu()
     def main_menu(self):
+            pygame.mixer.music.load('Ambulance.mp3')
+            pygame.mixer.music.set_volume(.5)
+            pygame.mixer.music.play(-1)
             quit_text = self.font.render('Quit', True, 'white')
             start_text = self.font.render('Start', True, 'white')
             menu_active = True
@@ -47,6 +50,11 @@ class Game:
                         if (WINDOW_WIDTH / 2 - 70 <= mouse[0] <= WINDOW_WIDTH / 2 + 70 and
                                 WINDOW_HEIGHT / 2 - 50 <= mouse[1] <= WINDOW_HEIGHT / 2 - 10):
                             menu_active = False  # Exit menu
+                            pygame.mixer.music.fadeout(500)
+                            pygame.mixer.music.load('RNB_song.mp3')
+                            pygame.mixer.music.set_volume(.2)
+                            pygame.mixer.music.play(-1)
+
                             return True  # true to indicate starting game
 
                         # quit button click (bottom button)
