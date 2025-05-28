@@ -15,7 +15,6 @@ class Game:
         #made the game borderless, which speeds up loading into the game when compared to only doing fullscreen function
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SCALED | pygame.FULLSCREEN)
         pygame.display.set_caption('the lion does not concern itself with titles')
-
         # we use this as the framerate for the game
         self.clock = pygame.time.Clock()
         self.running = True
@@ -28,6 +27,56 @@ class Game:
 
         # sprites
         self.player = Player((400,300), self.all_sprites, self.collision_sprites)
+
+        self.font = pygame.font.SysFont('Corbel', 35)
+        self.main_menu()
+    def main_menu(self):
+            quit_text = self.font.render('Quit', True, 'white')
+            start_text = self.font.render('Start', True, 'white')
+            menu_active = True
+
+            while menu_active:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        return False  # false to indicate quitting
+
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse = pygame.mouse.get_pos()
+                        # start button click (top button)
+                        if (WINDOW_WIDTH / 2 - 70 <= mouse[0] <= WINDOW_WIDTH / 2 + 70 and
+                                WINDOW_HEIGHT / 2 - 50 <= mouse[1] <= WINDOW_HEIGHT / 2 - 10):
+                            menu_active = False  # Exit menu
+                            return True  # true to indicate starting game
+
+                        # quit button click (bottom button)
+                        elif (WINDOW_WIDTH / 2 - 70 <= mouse[0] <= WINDOW_WIDTH / 2 + 70 and
+                              WINDOW_HEIGHT / 2 + 10 <= mouse[1] <= WINDOW_HEIGHT / 2 + 50):
+                            pygame.quit()
+                            return False  # false to indicate quitting
+
+                # drawing
+                self.display_surface.fill((254, 172, 40))
+                mouse = pygame.mouse.get_pos()
+
+                # drawing the start button
+                start_color = 'light grey' if (WINDOW_WIDTH / 2 - 70 <= mouse[0] <= WINDOW_WIDTH / 2 + 70 and
+                                               WINDOW_HEIGHT / 2 - 50 <= mouse[1] <= WINDOW_HEIGHT / 2 - 10) else 'grey'
+                pygame.draw.rect(self.display_surface, start_color,
+                                 [WINDOW_WIDTH / 2 - 70, WINDOW_HEIGHT / 2 - 50, 140, 40])
+
+                # drawing the quit button
+                quit_color = 'light grey' if (WINDOW_WIDTH / 2 - 70 <= mouse[0] <= WINDOW_WIDTH / 2 + 70 and
+                                              WINDOW_HEIGHT / 2 + 10 <= mouse[1] <= WINDOW_HEIGHT / 2 + 50) else 'grey'
+                pygame.draw.rect(self.display_surface, quit_color,
+                                 [WINDOW_WIDTH / 2 - 70, WINDOW_HEIGHT / 2 + 10, 140, 40])
+
+                # adds text to buttons
+                self.display_surface.blit(start_text, (WINDOW_WIDTH / 2 - 35, WINDOW_HEIGHT / 2 - 40))
+                self.display_surface.blit(quit_text, (WINDOW_WIDTH / 2 - 35, WINDOW_HEIGHT / 2 + 20))
+
+                pygame.display.update()
+            return True
 
     def setup(self):
         # loading in the map layer by layer, ground is first then trees
@@ -56,6 +105,7 @@ class Game:
             self.display_surface.fill('black')
             self.all_sprites.draw(self.player.rect.center)
             self.player.draw_health_bar(self.display_surface)
+
             pygame.display.update()
         pygame.quit()
 # we have to now call the game class in order for it to run
