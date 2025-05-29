@@ -2,6 +2,7 @@ from settings import *
 class Player(pygame.sprite.Sprite):
     def __init__(self,pos,groups,collision_sprites):
         super().__init__(groups)
+        self.keys = pygame.key.get_pressed()
         self.load_images()
         self.state, self.frame_index = 'Up', 0
         self.image = pygame.image.load(join('Robot','Down','0.png')).convert_alpha()
@@ -13,15 +14,18 @@ class Player(pygame.sprite.Sprite):
         self.max_health = 100 # may change later i dont know
         self.current_health = self.max_health
         self.speed = 400
+        self.q_key_was_pressed = False
         self.collision_sprites = collision_sprites
-    # no eniemes in game but this is future proofing
+
+    # robot runs out of honey, hence the slow amount of health taken away from him.
     def take_damage(self, amount):
         self.current_health -= amount
-        if self.current_health < 0:
-            self.current_health = 0
 
     def is_alive(self):
-        return self.current_health > 0
+        if self.current_health == 0:
+            pygame.quit()
+        else:
+            return self.current_health > 0
 
     def draw_health_bar(self, surface):
         bar_width, bar_height = 200, 20
@@ -102,7 +106,15 @@ class Player(pygame.sprite.Sprite):
         self.image = self.frames[self.state][int(self.frame_index) % len(self.frames[self.state])]
 
     def update(self,dt):
+        keys = pygame.key.get_pressed()
         self.input()
+        self.take_damage(amount=.01)
         self.move(dt)
         self.animate(dt)
+        #prototype healing, just to see it work.
+        if keys[pygame.K_q] and not self.q_key_was_pressed:
+            self.current_health += 3
+            self.current_health = min(self.current_health, self.max_health)
+        self.q_key_was_pressed = keys[pygame.K_q]
+        self.is_alive()
 

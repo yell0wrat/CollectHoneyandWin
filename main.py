@@ -28,6 +28,7 @@ class Game:
         # sprites
         self.player = Player((400,300), self.all_sprites, self.collision_sprites)
 
+
         self.font = pygame.font.SysFont('Corbel', 35)
         self.main_menu()
     def main_menu(self):
@@ -52,7 +53,7 @@ class Game:
                             menu_active = False  # Exit menu
                             pygame.mixer.music.fadeout(500)
                             pygame.mixer.music.load('RNB_song.mp3')
-                            pygame.mixer.music.set_volume(.2)
+                            pygame.mixer.music.set_volume(0)
                             pygame.mixer.music.play(-1)
 
                             return True  # true to indicate starting game
