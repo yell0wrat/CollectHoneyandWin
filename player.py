@@ -22,8 +22,9 @@ class Player(pygame.sprite.Sprite):
         self.current_health -= amount
 
     def is_alive(self):
-        if self.current_health == 0:
+        if self.current_health <= 1:
             pygame.quit()
+            sys.exit()
         else:
             return self.current_health > 0
 

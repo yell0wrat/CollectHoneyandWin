@@ -1,4 +1,3 @@
-import pygame.sprite
 
 from settings import *
 # made so the ground layer does not do collision with the player

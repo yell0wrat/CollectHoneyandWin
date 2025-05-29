@@ -1,4 +1,5 @@
 import pygame
+import sys
 from os.path import join
 from os import walk
 
