@@ -8,7 +8,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load(join('Robot','Down','0.png')).convert_alpha()
         self.rect = self.image.get_frect(center = pos)
         # this makes the hitbox smaller. it less empty space for the player to be hit by
-        self.hitbox_rect = self.rect.inflate(-40,-42)
+        self.hitbox_rect = self.rect.inflate(-4,-6)
         # movement
         self.direction = pygame.Vector2(0,0)
         self.max_health = 100 # may change later i dont know

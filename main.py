@@ -24,10 +24,7 @@ class Game:
 
         self.setup()
 
-        # sprites
-        self.player = Player((400,300), self.all_sprites, self.collision_sprites)
-
-
+        #font name
         self.font = pygame.font.SysFont('Corbel', 35)
         self.main_menu()
     def main_menu(self):
@@ -52,7 +49,7 @@ class Game:
                             menu_active = False  # Exit menu
                             pygame.mixer.music.fadeout(500)
                             pygame.mixer.music.load('RNB_song.mp3')
-                            pygame.mixer.music.set_volume(0)
+                            pygame.mixer.music.set_volume(0.1)
                             pygame.mixer.music.play(-1)
 
                             return True  # true to indicate starting game
@@ -87,17 +84,31 @@ class Game:
             return True
 
     def setup(self):
-        # loading in the map layer by layer, ground is first then trees
-        map = load_pygame(join('Data','testmap.tmx'))
+        # loading in the map layer by layer, starting from 1 to x layer
+        map = load_pygame(join('Data','untitled.tmx'))
 
-        # ground is tile so we use tile
+        # layers with no collisions use .tiles and Sprite class
         for x, y, image in map.get_layer_by_name('Ground').tiles():
             Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
-            
-        # trees theirself are tile later, we use ".tiles"
-        for x, y, image in map.get_layer_by_name('Trees').tiles():  #works if the layer is properly set up
-            if image:  #skip empty tiles
-                CollisionSprite((x * TILE_SIZE, y * TILE_SIZE),image,(self.all_sprites, self.collision_sprites))
+
+        for x, y, image in map.get_layer_by_name('Elevated').tiles():
+            Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
+
+        for x, y, image in map.get_layer_by_name('No collisions').tiles():
+            Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
+
+        for x, y, image in map.get_layer_by_name('Shadow').tiles():
+            Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
+
+        for x, y, image in map.get_layer_by_name('Water foam').tiles():
+            Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
+        # layers with collisions use for obj and CollisionSprite class
+        for obj in map.get_layer_by_name('Collisions'):
+             CollisionSprite((obj.x, obj.y), pygame.Surface((obj.width, obj.height)), self.collision_sprites)
+        # this spawns player at the coords at layer
+        for obj in map.get_layer_by_name('Player spawn'):
+            self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites)
+        #for obj in map.get_layer_by_name('Player spawn'):
 
     def run(self):
         while self.running:
@@ -120,27 +131,3 @@ class Game:
 if __name__ == '__main__':
     game = Game()
     game.run()
-
-
-
-
-#these are for characters that will get their own py file
-class Character:
-    #you define the variables that are in () that aren't self
-    def __init__(self, health: int, damage: int, speed: int):
-        self.health=health
-        # max health isn't in the vars but this is for future proofing
-        self.health_max=health
-        self.damage=damage
-        self.speed = speed
-
-#to inhert class you do something like: "class [new class](old class):"
-class Robot(Character):
-    def __init__(self, health: int, damage: int, speed: int):
-        super().__init__(health=health, damage=damage, speed=speed)
-    #we use the super init method to take what we have from the original class
-#im gonna do this again but with the enemy class (we can have more than 1 enemy but for now i wanna just make it general
-class Enemy(Character):
-    def __init__(self, health: int, damage: int, speed: int):
-        super().__init__(health=health, damage=damage, speed=speed)
-#there is way more to do but hopfully i did good in giving u a mini lesson on what youll be learning in the future
