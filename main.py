@@ -17,18 +17,43 @@ class Game:
         # we use this as the framerate for the game
         self.clock = pygame.time.Clock()
         self.running = True
+        self.load_images()
 
         # groups
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
+        self.bullet_sprites = pygame.sprite.Group()
 
         self.setup()
 
+        self.can_shoot = True
+        self.shoot_time = 0
+        self.gun_cooldown = 150
         #font name
         self.font = pygame.font.SysFont('Corbel', 35)
         self.main_menu()
+
+    def load_images(self):
+        self.bullet_surf = pygame.image.load(join('Robot', 'bolt 3.png')).convert_alpha()
+
+
+    def input(self):
+        if pygame.mouse.get_pressed()[0] and self.can_shoot:
+            pos = self.gun.rect.center + self.gun.player_direction * 30
+            Bullet(self.bullet_surf, pos, self.gun.player_direction , (self.all_sprites, self.bullet_sprites))
+            self.can_shoot = False
+            self.shoot_time = pygame.time.get_ticks()
+        elif pygame.mouse.get_pressed()[2]:
+            print('slash')
+
+    def gun_timer(self):
+        if not self.can_shoot:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.shoot_time >= self.gun_cooldown:
+                self.can_shoot = True
+
     def main_menu(self):
-            pygame.mixer.music.load('Ambulance.mp3')
+            pygame.mixer.music.load('Music/Ambulance.mp3')
             pygame.mixer.music.set_volume(.5)
             pygame.mixer.music.play(-1)
             quit_text = self.font.render('Quit', True, 'white')
@@ -48,7 +73,7 @@ class Game:
                                 WINDOW_HEIGHT / 2 - 50 <= mouse[1] <= WINDOW_HEIGHT / 2 - 10):
                             menu_active = False  # Exit menu
                             pygame.mixer.music.fadeout(500)
-                            pygame.mixer.music.load('RNB_song.mp3')
+                            pygame.mixer.music.load('Music/RNB_song.mp3')
                             pygame.mixer.music.set_volume(0.1)
                             pygame.mixer.music.play(-1)
 
@@ -108,7 +133,11 @@ class Game:
         # this spawns player at the coords at layer
         for obj in map.get_layer_by_name('Player spawn'):
             self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites)
-        #for obj in map.get_layer_by_name('Player spawn'):
+            self.gun = Gun(self.player, self.all_sprites)
+
+
+
+        #for obj in map.get_layer_by_name('Enemy spawn'):
 
     def run(self):
         while self.running:
@@ -119,6 +148,8 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
             # update, updates sprites
+            self.gun_timer()
+            self.input()
             self.all_sprites.update(dt)
             # draw, to "draw" is to make the images visible to the user
             self.display_surface.fill('black')
