@@ -1,9 +1,11 @@
+import pygame.event
+
 from settings import *
 from player import Player
 from sprites import *
 from pytmx.util_pygame import load_pygame
 from groups import AllSprites
-#from random import randint probably not needed anymore
+from random import randint, choice
 
 # initalizing the game with pygane.init
 # whenever starting a class as well, you must make a "__init__" funciton
@@ -17,24 +19,42 @@ class Game:
         # we use this as the framerate for the game
         self.clock = pygame.time.Clock()
         self.running = True
-        self.load_images()
 
         # groups
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
         self.bullet_sprites = pygame.sprite.Group()
+        self.enemy_sprites = pygame.sprite.Group()
 
-        self.setup()
-
+        # gun timer
         self.can_shoot = True
         self.shoot_time = 0
         self.gun_cooldown = 150
-        #font name
+
+        # enemy timer
+        self.enemy_event = pygame.event.custom_type()
+        pygame.time.set_timer(self.enemy_event, 300)
+        self.spawn_positions = []
+
+        self.setup()
+        self.load_images()
+
+        # main menu
         self.font = pygame.font.SysFont('Corbel', 35)
         self.main_menu()
 
     def load_images(self):
         self.bullet_surf = pygame.image.load(join('Robot', 'bolt 3.png')).convert_alpha()
+
+        folders = list(walk(join('Enemies')))[0][1]
+        self.enemy_frames= {}
+        for folder in folders:
+            for folder_path, _, file_names in walk(join('Enemies', folder)):
+                self.enemy_frames[folder] = []
+                for file_name in sorted(file_names, key = lambda name: int(name.split('.')[0])):
+                    full_path = join(folder_path, file_name)
+                    surf = pygame.image.load(full_path).convert_alpha()
+                    self.enemy_frames[folder].append(surf)
 
 
     def input(self):
@@ -127,17 +147,34 @@ class Game:
 
         for x, y, image in map.get_layer_by_name('Water foam').tiles():
             Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
+
         # layers with collisions use for obj and CollisionSprite class
         for obj in map.get_layer_by_name('Collisions'):
              CollisionSprite((obj.x, obj.y), pygame.Surface((obj.width, obj.height)), self.collision_sprites)
+
+        # this spawns enemys at the coords at layer
+        for obj in map.get_layer_by_name('Enemy spawn'):
+            self.spawn_positions.append((obj.x, obj.y))
+
         # this spawns player at the coords at layer
         for obj in map.get_layer_by_name('Player spawn'):
             self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites)
             self.gun = Gun(self.player, self.all_sprites)
 
 
+    def bullet_collision(self):
+        if self.bullet_sprites:
+            for bullet in self.bullet_sprites:
+                collision_sprites = pygame.sprite.spritecollide(bullet, self.enemy_sprites, False, pygame.sprite.collide_mask)
+                if collision_sprites:
+                    for sprite in collision_sprites:
+                        sprite.destory()
+                    bullet.kill()
 
-        #for obj in map.get_layer_by_name('Enemy spawn'):
+    def player_collision(self):
+        if pygame.sprite.spritecollide(self.player, self.enemy_sprites, False, pygame.sprite.collide_mask):
+            self.running = False
+
 
     def run(self):
         while self.running:
@@ -147,10 +184,17 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-            # update, updates sprites
+                if event.type == self.enemy_event:
+                    Enemy(choice(self.spawn_positions), choice(list(self.enemy_frames.values())), (self.all_sprites, self.enemy_sprites), self.player, self.collision_sprites)
+
+
+            # update
             self.gun_timer()
             self.input()
             self.all_sprites.update(dt)
+            self.bullet_collision()
+            self.player_collision()
+
             # draw, to "draw" is to make the images visible to the user
             self.display_surface.fill('black')
             self.all_sprites.draw(self.player.rect.center)
